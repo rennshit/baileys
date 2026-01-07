@@ -1,59 +1,102 @@
-# <div align='center'>Baileys - Typescript/Javascript</div>
+<h1 align="center" style="color:#00e5ff;">SUPERIOR BAILEYS v7.0</h1>
 
-<div align="center">
-
-<img src="https://files.catbox.moe/fnw434.jpg" alt="Header Image" width="100%"/>
-
-<br/>
-
-<!-- Badges -->
-<p>
-  <img src="https://img.shields.io/npm/dw/%40itsukichan%2Fbaileys?label=npm&color=%23CB3837" alt="NPM Downloads"/>
-  <img src="https://img.shields.io/github/v/release/itsukichann/baileys?include_prereleases&sort=semver" alt="Latest Release"/>
-  <img src="https://img.shields.io/github/languages/code-size/itsukichann/baileys" alt="Code Size"/>
-  <img src="https://img.shields.io/github/license/itsukichann/baileys" alt="License"/>
-  <img src="https://img.shields.io/github/stars/itsukichann/baileys" alt="Stars"/>
-  <img src="https://img.shields.io/github/forks/itsukichann/baileys" alt="Forks"/>
+<p align="center">
+  <img src="https://j.top4top.io/p_3659bi2od6.jpg" width="600"/>
 </p>
 
-<!-- GitHub Stats -->
-<p>
-  <img src="https://github-readme-stats.vercel.app/api?username=TheGetsuzoZhiro&show_icons=true&theme=radical" alt="GitHub Stats"/>
+<p align="center" style="color:#b0bec5;">
+A hardened WhatsApp bot base built on <b>@whiskeysockets/baileys v7.0</b>,<br>
+engineered for <b>spam resistance</b> and <b>extreme payload (bug) handling</b>.
 </p>
 
-<!-- WhatsApp Links -->
-<p>
-  <a href="https://whatsapp.com/channel/0029Vajupt79mrGiw435yr2A">
-    <img src="https://img.shields.io/badge/WhatsApp-Channel-brightgreen" alt="WA Channel"/>
-  </a>
-  <a href="https://wa.me/6281991410940">
-    <img src="https://img.shields.io/badge/Owner-WA-green" alt="WA Owner"/>
-  </a>
+---
+
+<h2 style="color:#ff9800;">Overview</h2>
+
+<p style="color:#e0e0e0;">
+SUPERIOR BAILEYS v7.0 is a Baileys-based WhatsApp bot implementation focused on
+<b>stability, durability, and crash prevention</b> rather than feature quantity.
+This project is designed to remain operational under heavy message floods,
+malformed payloads, and unexpected message structures that commonly cause
+standard implementations to fail.
 </p>
 
-</div>
+<p style="color:#e0e0e0;">
+The core philosophy of this project is <b>defensive handling</b>:
+every incoming message is treated as untrusted input.
+Unknown, broken, or experimental payloads are processed safely to avoid
+fatal errors, freeze loops, or memory exhaustion.
+</p>
 
-### [GetsuzoBot](https://t.me/GetsuzoBot)
+---
 
-_GetsuZoBot Adalah_ **Ekosistem Modular** _Yang Dirancang Untuk_ **Otomatisasi, Investigasi Digital,** _Dan Kendali Penuh Atas_ **Data** _Dan_ **Media.**
+<h2 style="color:#4caf50;">Primary Focus</h2>
 
-_Dengan_ **Integrasi Sistematis** _Yang_ **Stabil** _Dan_ **Framework** _, GetsuzoBot Memungkinkan Kamu:_
+<ul style="color:#cfd8dc;">
+  <li>High resistance to spam and flood attacks</li>
+  <li>Stable behavior under continuous message load</li>
+  <li>Safe handling of malformed or corrupted payloads</li>
+  <li>Compatibility with bug / edge-case message structures</li>
+  <li>Minimal crash and freeze risk</li>
+</ul>
 
-```› Integrasi Eksploitasi Dan Intelijen```
+---
 
-```› Fokus Pada Efektivitas Dan Kemudahan User```
+<h2 style="color:#2196f3;">Message Compatibility</h2>
 
-_Built Not Just To Assist, But To Dominate The Flow Of Data._
+<p style="color:#e0e0e0;">
+This setup supports virtually all WhatsApp message types, including but not
+limited to:
+</p>
 
-### ⚙️ Core Capabilities Overview
-*Daftar Lengkap Fitur Untuk Eksplorasi, Analisa, Dan Automasi Digital Yang Elegan, Efisien, Dan Stabil.*
+<ul style="color:#cfd8dc;">
+  <li>Text messages</li>
+  <li>Image, video, and audio (PTT)</li>
+  <li>Document messages</li>
+  <li>Buttons and list messages</li>
+  <li>Interactive / native flow messages</li>
+  <li>Request payment payloads</li>
+  <li>Unknown or undocumented message formats</li>
+</ul>
 
-**⚔️ 1. Xploiter Suite**
+<p style="color:#e0e0e0;">
+Unsupported or invalid payloads are ignored or logged safely without
+interrupting the main process.
+</p>
 
-**🔎 2. Source Intelligence**
+---
 
-**🚀 3. Core Menu Tools**
+<h2 style="color:#9c27b0;">Use Cases</h2>
 
-_Gunakan Fitur Ini Dengan Bijak. Sistem Ini Alat, Bukan Senjata._
+<ul style="color:#cfd8dc;">
+  <li>Spam and flood stress testing</li>
+  <li>Research on WhatsApp message behavior</li>
+  <li>Development of high-availability bots</li>
+  <li>Testing experimental or edge-case payloads</li>
+  <li>Long-running bots in uncontrolled environments</li>
+</ul>
 
-**Powered By: GetsuzoBot ⚡️**
+---
+
+<h2 style="color:#ff5722;">Disclaimer</h2>
+
+<p style="color:#ffccbc;">
+This project is provided strictly for <b>educational, research, and development
+purposes</b>. It is not affiliated with WhatsApp. Any misuse, abuse, or violation
+of WhatsApp’s Terms of Service is entirely the responsibility of the user.
+</p>
+
+---
+
+<h2 style="color:#8bc34a;">Credits</h2>
+
+<ul style="color:#cfd8dc;">
+  <li>WhiskeySockets — Baileys Library</li>
+  <li>Node.js Open Source Community</li>
+  <li>All contributors and researchers</li>
+</ul>
+
+<p align="center" style="color:#90a4ae;">
+SUPERIOR BAILEYS v7.0<br>
+<b>Built for stability, not gimmicks.</b>
+</p>
