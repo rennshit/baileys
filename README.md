@@ -62,6 +62,8 @@ npm install jimp link-preview-js qrcode-terminal
 
 ## Contoh Dasar
 
+### CommonJS
+
 ```js
 const makeWASocket = require("@rennshit/baileys");
 
@@ -84,6 +86,14 @@ client.ev.on("messages.upsert", async ({ messages }) => {
   });
 });
 ```
+
+### ESM
+
+```js
+import makeWASocket, { proto, DisconnectReason } from "@rennshit/baileys";
+```
+
+Package tetap menyediakan CommonJS melalui `require()` dan ESM melalui `import`.
 
 ## Pairing Code
 
