@@ -24,8 +24,20 @@ Baileys fork untuk membuat bot WhatsApp berbasis Node.js. Fork ini mempertahanka
 
 ## Instalasi
 
+Tambahkan dependency berikut ke `package.json`:
+
+```json
+{
+  "dependencies": {
+    "@whiskeysockets/baileys": "github:rennshit/baileys"
+  }
+}
+```
+
+Lalu jalankan:
+
 ```bash
-npm install rennshit/Baileys
+npm install
 ```
 
 Atau dari repository lokal:
@@ -37,13 +49,15 @@ npm install
 Beberapa fitur media bersifat opsional. Pasang dependency tambahan bila diperlukan:
 
 ```bash
-npm install jimp link-preview-js qrcode-terminal sharp
+npm install jimp link-preview-js qrcode-terminal
 ```
+
+`sharp` tidak diperlukan untuk instalasi dasar. Pasang `sharp` secara terpisah hanya jika aplikasi kamu memang menggunakannya untuk pemrosesan gambar.
 
 ## Contoh Dasar
 
 ```js
-const makeWASocket = require("rennshit/Baileys");
+const makeWASocket = require("@whiskeysockets/baileys");
 
 const client = makeWASocket({
   printQRInTerminal: true,
