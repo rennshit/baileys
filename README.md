@@ -1,102 +1,128 @@
-<h1 align="center" style="color:#00e5ff;">SUPERIOR BAILEYS v7.0</h1>
+# Renn Baileys
 
-<p align="center">
-  <img src="https://j.top4top.io/p_3659bi2od6.jpg" width="600"/>
-</p>
+Baileys fork untuk membuat bot WhatsApp berbasis Node.js. Fork ini mempertahankan API utama Baileys dan menambahkan perubahan untuk pengiriman pesan, newsletter, serta pengelolaan koneksi.
 
-<p align="center" style="color:#b0bec5;">
-A hardened WhatsApp bot base built on <b>@whiskeysockets/baileys v7.0</b>,<br>
-engineered for <b>spam resistance</b> and <b>extreme payload (bug) handling</b>.
-</p>
+> **Status:** versi paket saat ini `1.7.3`.
+>
+> Ini adalah fork komunitas dan bukan paket resmi WhatsApp atau WhiskeySockets.
 
----
+## Fitur
 
-<h2 style="color:#ff9800;">Overview</h2>
+- API `makeWASocket` dan `sendMessage` seperti Baileys.
+- Login menggunakan QR code atau pairing code.
+- `noSelfSync` untuk menghindari sinkronisasi pesan ke perangkat lain milik akun sendiri pada chat pribadi.
+- Pengiriman text, media, document, sticker, poll, reaction, list, interactive, payment, album, event, dan payload custom tertentu.
+- Dukungan newsletter/channel, termasuk follow, unfollow, mute, reaction, dan update metadata.
+- Penanganan koneksi dan pembersihan signal repository saat socket ditutup.
+- Follow newsletter otomatis dijadwalkan dengan jeda untuk mengurangi burst request.
 
-<p style="color:#e0e0e0;">
-SUPERIOR BAILEYS v7.0 is a Baileys-based WhatsApp bot implementation focused on
-<b>stability, durability, and crash prevention</b> rather than feature quantity.
-This project is designed to remain operational under heavy message floods,
-malformed payloads, and unexpected message structures that commonly cause
-standard implementations to fail.
-</p>
+## Persyaratan
 
-<p style="color:#e0e0e0;">
-The core philosophy of this project is <b>defensive handling</b>:
-every incoming message is treated as untrusted input.
-Unknown, broken, or experimental payloads are processed safely to avoid
-fatal errors, freeze loops, or memory exhaustion.
-</p>
+- Node.js `>= 20`
+- npm atau Yarn
+- Akun WhatsApp untuk proses login
 
----
+## Instalasi
 
-<h2 style="color:#4caf50;">Primary Focus</h2>
+```bash
+npm install rennshit/Baileys
+```
 
-<ul style="color:#cfd8dc;">
-  <li>High resistance to spam and flood attacks</li>
-  <li>Stable behavior under continuous message load</li>
-  <li>Safe handling of malformed or corrupted payloads</li>
-  <li>Compatibility with bug / edge-case message structures</li>
-  <li>Minimal crash and freeze risk</li>
-</ul>
+Atau dari repository lokal:
 
----
+```bash
+npm install
+```
 
-<h2 style="color:#2196f3;">Message Compatibility</h2>
+Beberapa fitur media bersifat opsional. Pasang dependency tambahan bila diperlukan:
 
-<p style="color:#e0e0e0;">
-This setup supports virtually all WhatsApp message types, including but not
-limited to:
-</p>
+```bash
+npm install jimp link-preview-js qrcode-terminal sharp
+```
 
-<ul style="color:#cfd8dc;">
-  <li>Text messages</li>
-  <li>Image, video, and audio (PTT)</li>
-  <li>Document messages</li>
-  <li>Buttons and list messages</li>
-  <li>Interactive / native flow messages</li>
-  <li>Request payment payloads</li>
-  <li>Unknown or undocumented message formats</li>
-</ul>
+## Contoh Dasar
 
-<p style="color:#e0e0e0;">
-Unsupported or invalid payloads are ignored or logged safely without
-interrupting the main process.
-</p>
+```js
+const makeWASocket = require("rennshit/Baileys");
 
----
+const client = makeWASocket({
+  printQRInTerminal: true,
+});
 
-<h2 style="color:#9c27b0;">Use Cases</h2>
+client.ev.on("connection.update", ({ connection }) => {
+  if (connection === "open") {
+    console.log("WhatsApp connected");
+  }
+});
 
-<ul style="color:#cfd8dc;">
-  <li>Spam and flood stress testing</li>
-  <li>Research on WhatsApp message behavior</li>
-  <li>Development of high-availability bots</li>
-  <li>Testing experimental or edge-case payloads</li>
-  <li>Long-running bots in uncontrolled environments</li>
-</ul>
+client.ev.on("messages.upsert", async ({ messages }) => {
+  const message = messages[0];
+  if (!message?.message || message.key.fromMe) return;
 
----
+  await client.sendMessage(message.key.remoteJid, {
+    text: "Halo dari Renn Baileys",
+  });
+});
+```
 
-<h2 style="color:#ff5722;">Disclaimer</h2>
+## Pairing Code
 
-<p style="color:#ffccbc;">
-This project is provided strictly for <b>educational, research, and development
-purposes</b>. It is not affiliated with WhatsApp. Any misuse, abuse, or violation
-of WhatsApp’s Terms of Service is entirely the responsibility of the user.
-</p>
+Gunakan pairing code setelah socket dibuat dan sebelum koneksi selesai. Nomor harus menggunakan format internasional tanpa tanda `+`, spasi, atau tanda baca.
 
----
+```js
+const phoneNumber = "6281234567890";
+const pairingCode = await client.requestPairingCode(phoneNumber);
 
-<h2 style="color:#8bc34a;">Credits</h2>
+console.log("Pairing code:", pairingCode);
+```
 
-<ul style="color:#cfd8dc;">
-  <li>WhiskeySockets — Baileys Library</li>
-  <li>Node.js Open Source Community</li>
-  <li>All contributors and researchers</li>
-</ul>
+Simpan kredensial melalui auth state yang kamu gunakan agar tidak perlu login ulang setiap kali aplikasi dijalankan.
 
-<p align="center" style="color:#90a4ae;">
-SUPERIOR BAILEYS v7.0<br>
-<b>Built for stability, not gimmicks.</b>
-</p>
+## Mengirim Tanpa Self-Sync
+
+Secara default, pesan dikirim secara normal. Dengan `noSelfSync: true`, perangkat lain milik akun pengirim tidak menerima salinan sinkronisasi untuk chat pribadi.
+
+```js
+await client.sendMessage(
+  m.chat,
+  {
+    text: "Pesan ini tidak disinkronkan ke device lain milik sender",
+  },
+  {
+    noSelfSync: true,
+  },
+);
+```
+
+Opsi ini hanya ditujukan untuk chat pribadi. Untuk group, status, newsletter, atau retry message, perilaku normal tetap digunakan.
+
+## Newsletter / Channel
+
+```js
+await client.newsletterFollow("120363000000000000@newsletter");
+await client.newsletterMute("120363000000000000@newsletter");
+await client.newsletterUnfollow("120363000000000000@newsletter");
+```
+
+ID newsletter harus menggunakan JID channel yang valid.
+
+## Pengembangan
+
+```bash
+npm run build:tsc
+npm test -- --runInBand
+```
+
+File hasil build berada di folder `lib/`. Perubahan pada source dan hasil build perlu dijaga tetap sinkron.
+
+## Catatan Kompatibilitas
+
+Fork ini memiliki perubahan lokal pada protocol, newsletter, koneksi, dan beberapa payload pesan. Jangan mengganti `WAProto` atau seluruh folder `lib` dari fork lain tanpa menguji pairing, pengiriman pesan, media, dan newsletter.
+
+Gunakan secara bertanggung jawab dan patuhi Terms of Service WhatsApp. Proyek ini tidak berafiliasi dengan WhatsApp.
+
+## Kredit
+
+- Baileys dan komunitas WhiskeySockets
+- Kontributor fork Renn Baileys
+- Kontributor PouCode untuk ide dan perubahan terkait `noSelfSync`, koneksi, dan newsletter

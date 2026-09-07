@@ -176,6 +176,8 @@ export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>;
 type MinimalRelayOptions = {
     /** override the message ID with a custom provided string */
     messageId?: string;
+    /** skip syncing the message to the sender's other devices in private chats */
+    noSelfSync?: boolean;
     /** cached group metadata, use to prevent redundant requests to WA & speed up msg sending */
     cachedGroupMetadata?: (jid: string) => Promise<GroupMetadataParticipants | undefined>;
 };
