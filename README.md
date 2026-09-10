@@ -1,483 +1,205 @@
-# <div align='center'>Renn Baileys</div>
+# Renn Baileys
 
-<p align="center">
+Fork Baileys untuk Node.js dengan pembaruan koneksi WhatsApp Web, pairing code, rich message, dan dukungan ESM.
 
-  <img src="https://files.catbox.moe/mvxzf6.jpg" width="180" alt="Renn Baileys"/>
+> Community fork. Tidak berafiliasi dengan WhatsApp atau WhiskeySockets.
 
-</p>
-
-<div align='center'>
-
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![GitHub](https://img.shields.io/badge/source-GitHub-black.svg)](https://github.com/rennshit/baileys)
-[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
 
-A WebSockets library for interacting with WhatsApp Web, maintained under the **Renn Baileys** brand.
-This project is based on [Baileys](https://github.com/WhiskeySockets/Baileys) with updated connection and pairing support.
+## Fitur Utama
 
-</div>
+- ESM penuh dengan `import`.
+- Login QR code dan pairing code.
+- Generator `generateWAMessage`, `generateWAMessageContent`, dan `generateWAMessageFromContent`.
+- Rich message: text, table, list, code block, LaTeX, interactive, media, poll, product, event, dan album.
+- `noSelfSync` untuk menghindari sinkronisasi pesan ke device lain milik sender.
+- Newsletter/channel API tanpa auto-join saat startup.
+- WAProto dan koneksi berbasis update terbaru WhatsApp Web.
 
----
+## Persyaratan
 
-## Installation
+- Node.js `>= 20`
+- Akun WhatsApp untuk proses login
+- Project menggunakan ESM, misalnya `"type": "module"` di `package.json`
 
-Install directly from GitHub (not published on npm registry):
+## Instalasi
 
-```bash
-npm install github:rennshit/baileys
-```
-
-Or add it to your `package.json` manually:
-
-```json
-"dependencies": {
-  "@whiskeysockets/baileys": "github:rennshit/baileys"
-}
-```
-
-Already have a bot built on the original `@whiskeysockets/baileys` and don't want to change every
-`require`/`import` in your codebase? Alias the dependency name instead, so the original package
-name points to this fork:
-
-```json
-"dependencies": {
-  "@whiskeysockets/baileys": "github:rennshit/baileys"
-}
-```
-
-With this alias, import `@whiskeysockets/baileys` in your ESM code — npm will resolve it to this
-fork under the hood.
-
-You can also pin to a specific branch or commit:
+Install versi terbaru dari branch `main`:
 
 ```bash
 npm install github:rennshit/baileys#main
 ```
 
-## Import
+Agar kode lama tetap memakai nama package Baileys:
 
-```javascript
-import makeWASocket from "@whiskeysockets/baileys";
+```json
+{
+  "type": "module",
+  "dependencies": {
+    "@whiskeysockets/baileys": "github:rennshit/baileys#main"
+  }
+}
 ```
 
----
+Setelah update, restart aplikasi. Tidak ada proses install otomatis saat bot dijalankan.
 
-# Connecting To WhatsApp
+## Quick Start
 
-## With QR Code
-
-```javascript
-import makeWASocket, { Browsers } from "@whiskeysockets/baileys";
-
-const client = makeWASocket({
-  browser: Browsers.macOS("Chrome"),
-  printQRInTerminal: true,
-});
-```
-
-## Connect With Pairing Code
-
-```javascript
+```js
 import makeWASocket, {
-  fetchLatestWAWebVersion,
   Browsers,
+  useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
 
+const { state, saveCreds } = await useMultiFileAuthState("auth");
+
 const client = makeWASocket({
-  browser: Browsers.macOS("Chrome"),
-  printQRInTerminal: false,
-  version: await fetchLatestWAWebVersion(),
-  aiLabel: false, // set true to show an AI label on messages sent by the bot
-  // other options
+  auth: state,
+  browser: Browsers.renn("Chrome"),
+  printQRInTerminal: true,
 });
 
-const number = "628XXXXXXXXXX";
-const code = await client.requestPairingCode(number.trim()); // or (number, "YYYYYYYY") for a custom pairing code
+client.ev.on("creds.update", saveCreds);
 
-console.log("Your pairing code: " + code);
-```
-
-# Storing Data
-
-```javascript
-import makeWASocket, { makeInMemoryStore } from "@whiskeysockets/baileys";
-import pino from "pino";
-
-const store = makeInMemoryStore({
-  logger: pino().child({ level: "silent", stream: "store" }),
+client.ev.on("connection.update", ({ connection }) => {
+  if (connection === "open") {
+    console.log("WhatsApp connected");
+  }
 });
-const client = makeWASocket({
-  // options
-});
-store.bind(client.ev);
 
-client.ev.on("contacts.upsert", () => {
-  console.log("New contact: " + Object.values(store.contacts()));
-});
-```
+client.ev.on("messages.upsert", async ({ messages }) => {
+  const message = messages[0];
+  if (!message?.message || message.key.fromMe) return;
 
-# Sending Messages
-
-## Send / relay a message with `noSelfSync`
-
-`noSelfSync` is a `relayMessage` option (private/1-on-1 chats only) that controls whether the
-message is also synced to your **other own linked devices** (other phones/WhatsApp Web sessions
-logged into the same account). It does not affect delivery to the recipient.
-
-- **`noSelfSync: true`** — the message is sent to the recipient as normal, but is **not** synced
-  to your other own devices. Useful when you don't want a message to show up on your other
-  linked sessions (e.g. silent/automated sends from a bot account).
-- **`noSelfSync: false`** (default) — normal behavior. The message is sent to the recipient and
-  also synced to your other own devices, so it appears everywhere you're logged in, just like
-  sending from the official WhatsApp app.
-
-```javascript
-// Sent to the recipient, but NOT synced to your other devices
-await client.relayMessage(
-  m.chat,
-  {
-    conversation: "Hello from Renn Baileys",
-  },
-  {
-    noSelfSync: true,
-  },
-);
-
-// Sent to the recipient AND synced to your other devices (default behavior)
-await client.relayMessage(
-  m.chat,
-  {
-    conversation: "Hello from Renn Baileys",
-  },
-  {
-    noSelfSync: false,
-  },
-);
-
-// Also works through sendMessage
-await client.sendMessage(
-  m.chat,
-  {
+  await client.sendMessage(message.key.remoteJid, {
     text: "Hello from Renn Baileys",
-  },
-  {
-    noSelfSync: true,
-  },
-);
-```
-
-## Send an orderMessage
-
-```javascript
-import fs from "fs";
-const thumbnail = fs.readFileSync("./rennthumb.jpg");
-
-await client.sendMessage(
-  m.chat,
-  {
-    thumbnail,
-    message: "Order summary",
-    orderTitle: "My Store",
-    totalAmount1000: 72502,
-    totalCurrencyCode: "IDR",
-  },
-  { quoted: m },
-);
-```
-
-## Send a pollResultSnapshotMessage
-
-```javascript
-await client.sendMessage(m.chat, {
-  pollResultMessage: {
-    name: "My Poll",
-    options: [{ optionName: "Option 1" }, { optionName: "Option 2" }],
-    newsletter: {
-      newsletterName: "0X8 - Society",
-      newsletterJid: "120363424944937940@newsletter",
-    },
-  },
+  });
 });
 ```
 
-## Send a productMessage
+## Pairing Code
 
-```javascript
-await client.relayMessage(m.chat, {
-  productMessage: {
-    title: "Product.pdf",
-    description: "Product description",
-    thumbnail: { url: "./rennthumb.jpg" },
-    productId: "EXAMPLE_TOKEN",
-    retailerId: "EXAMPLE_RETAILER_ID",
-    url: "https://example.com",
-    body: "Body text",
-    footer: "Footer",
-    buttons: [
-      {
-        name: "cta_url",
-        buttonParamsJson:
-          '{"display_text":"Visit","url":"https://example.com"}',
-      },
-    ],
-    priceAmount1000: 72502,
-    currencyCode: "IDR",
-  },
+Gunakan nomor internasional tanpa tanda `+`, spasi, atau tanda baca.
+
+```js
+const code = await client.requestPairingCode("6281234567890");
+console.log("Pairing code:", code);
+```
+
+Format JID juga diterima:
+
+```js
+const code = await client.requestPairingCode("6281234567890@s.whatsapp.net");
+```
+
+Panggil pairing setelah socket dibuat, lalu simpan credentials melalui `saveCreds`.
+
+## Mengirim Pesan
+
+```js
+await client.sendMessage("6281234567890@s.whatsapp.net", {
+  text: "Pesan text",
+});
+
+await client.sendMessage("6281234567890@s.whatsapp.net", {
+  image: { url: "./image.jpg" },
+  caption: "Pesan gambar",
 });
 ```
 
-## Send an interactiveMessage
+## Rich Message
 
-```javascript
-await client.sendMessage(m.chat, {
-  image: { url: "./pouimg.jpg" },
-  text: "body",
-  title: "title", // required when sending media
-  footer: "footer",
-  interactiveButtons: [
+Rich message memakai `sendRichMessage` dan dapat berisi beberapa submessage.
+
+```js
+await client.sendRichMessage(
+  "6281234567890@s.whatsapp.net",
+  [
+    { messageType: 2, messageText: "Data akun" },
     {
-      name: "single_select",
-      buttonParamsJson: JSON.stringify({
-        title: "\0",
-      }),
+      messageType: 4,
+      tableMetadata: {
+        title: "Status",
+        rows: [{ items: ["Nama", "Renn"] }, { items: ["Status", "Aktif"] }],
+      },
     },
   ],
-  messageParams: JSON.stringify({
-    bottom_sheet: {
-      /** other params **/
-    },
-  }),
+  undefined,
+);
+```
+
+Helper tambahan yang tersedia:
+
+```js
+await client.sendTable(jid, "Judul", ["Kolom 1", "Kolom 2"], rows);
+await client.sendList(jid, "Daftar", ["Item 1", "Item 2"]);
+await client.sendCodeBlock(jid, "console.log('hello')", undefined, {
+  language: "javascript",
 });
 ```
 
-## Send a member label
+Rich message dibuat untuk chat biasa. Dukungan rendering di `status@broadcast` bergantung pada tipe payload WhatsApp; text dan media lebih aman untuk status.
 
-```javascript
-await client.sendMessage(m.chat, {
-  groupLabel: {
-    labelText: "Tagged members appear here",
-  },
-});
-```
+## noSelfSync
 
-## Send a message to group members
+`noSelfSync` hanya berlaku untuk chat pribadi. Pesan tetap dikirim ke penerima, tetapi tidak disinkronkan ke device lain milik akun pengirim.
 
-```javascript
-await client.sendMessageMembers(
-  m.chat,
+```js
+await client.sendMessage(
+  jid,
   {
-    extendedTextMessage: {
-      text: "Hello members",
-    },
-  },
-  {},
-);
-```
-
-# Simple sendMessage Helpers
-
-## Send text
-
-```javascript
-await client.sendText(
-  m.chat,
-  "Hello!",
-  {
-    contextInfo: {
-      mentionedJid: [m.chat],
-    },
+    text: "Pesan tanpa self-sync",
   },
   {
-    key: {
-      remoteJid: "status@broadcast",
-      participant: m.sender,
-      fromMe: true,
-    },
-    message: {
-      conversation: "\0",
-    },
+    noSelfSync: true,
   },
 );
 ```
 
-## Send image
+Default-nya adalah `false`. Group, status, newsletter, dan retry message tetap memakai perilaku normal.
 
-```javascript
-await client.sendImage(
-  m.chat,
-  { url: "./pouimg.jpg" },
-  "Caption",
-  {
-    contextInfo: {
-      mentionedJid: [m.chat],
-    },
-  },
-  {
-    key: {
-      remoteJid: "status@broadcast",
-      participant: m.sender,
-      fromMe: true,
-    },
-    message: {
-      conversation: "\0",
-    },
-  },
-);
+## Newsletter / Channel
+
+Tidak ada auto-join channel atau newsletter saat startup. Follow hanya dilakukan jika dipanggil secara manual:
+
+```js
+await client.newsletterFollow("120363000000000000@newsletter");
+await client.newsletterUnfollow("120363000000000000@newsletter");
 ```
 
-## Send video
+## Export Generator
 
-```javascript
-await client.sendVideo(
-  m.chat,
-  { url: "./video.mp4" },
-  "Caption",
-  {
-    contextInfo: {
-      mentionedJid: [m.chat],
-    },
-  },
-  {
-    key: {
-      remoteJid: "status@broadcast",
-      participant: m.sender,
-      fromMe: true,
-    },
-    message: {
-      conversation: "\0",
-    },
-  },
-);
+```js
+import {
+  generateWAMessage,
+  generateWAMessageContent,
+  generateWAMessageFromContent,
+} from "@whiskeysockets/baileys";
 ```
 
-## Send audio
+## Catatan Kompatibilitas
 
-```javascript
-await client.sendAudio(
-  m.chat,
-  { url: "./pouaudio.mp3" },
-  {
-    contextInfo: {
-      mentionedJid: [m.chat],
-    },
-  },
-  {
-    key: {
-      remoteJid: "status@broadcast",
-      participant: m.sender,
-      fromMe: true,
-    },
-    message: {
-      conversation: "\0",
-    },
-  },
-);
+Package ini menggunakan ESM dan WAProto terbaru. Gunakan `import`, bukan `require()`. Jika project kamu masih CommonJS, tambahkan `"type": "module"` atau migrasikan entry point aplikasi ke ESM.
+
+Saat update dari versi GitHub, gunakan:
+
+```bash
+npm install github:rennshit/baileys#main --force
 ```
 
-## Send location
+Gunakan `--force` hanya saat npm masih memakai cache atau commit lama.
 
-```javascript
-await client.sendLocation(
-  m.chat,
-  "Caption",
-  90.0,
-  90.0,
-  "https://example.com",
-  "1234567890",
-  {
-    contextInfo: {
-      mentionedJid: [m.chat],
-    },
-  },
-  {
-    key: {
-      remoteJid: "status@broadcast",
-      participant: m.sender,
-      fromMe: true,
-    },
-    message: {
-      conversation: "\0",
-    },
-  },
-);
+## Pengembangan
+
+```bash
+npm install
+npm run build:tsc
+npm test -- --runInBand
 ```
 
-## Send poll
+## Kredit dan Lisensi
 
-```javascript
-await client.sendPoll(
-  m.chat,
-  "Pick one",
-  ["1", "2", "3"],
-  true,
-  {
-    contextInfo: {
-      mentionedJid: [m.chat],
-    },
-  },
-  {
-    key: {
-      remoteJid: "status@broadcast",
-      participant: m.sender,
-      fromMe: true,
-    },
-    message: {
-      conversation: "\0",
-    },
-  },
-);
-```
+Renn Baileys dibangun di atas Baileys oleh WhiskeySockets dan kontribusi komunitas. Lihat [LICENSE](LICENSE) untuk informasi lisensi lengkap.
 
-## Send quiz
-
-```javascript
-await client.sendQuiz(
-  m.chat,
-  "Quiz question",
-  ["1", "2", "3"],
-  "2",
-  {
-    contextInfo: {
-      mentionedJid: [m.chat],
-    },
-  },
-  {
-    key: {
-      remoteJid: "status@broadcast",
-      participant: m.sender,
-      fromMe: true,
-    },
-    message: {
-      conversation: "\0",
-    },
-  },
-);
-```
-
-## Send status mention
-
-```javascript
-await client.statusMention(m.chat, {
-  extendedTextMessage: {
-    text: "Mentioned in status",
-  },
-});
-```
-
----
-
-# Credits
-
-Renn Baileys is a fork of [Baileys](https://github.com/WhiskeySockets/Baileys), originally created by
-[Adhiraj Singh](https://github.com/adiwajshing) and maintained by the WhiskeySockets community.
-All credit for the underlying protocol implementation goes to the original authors and contributors.
-See [LICENSE](LICENSE) for the full license text and copyright notices.
-
-# Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on reporting issues and submitting pull requests.
-
-# Disclaimer
-
-This is **not** an official WhatsApp product. Use of this library to send bulk or unsolicited messages
-may violate WhatsApp's Terms of Service and can result in your number being banned. Use responsibly.
+Repository: https://github.com/rennshit/baileys
