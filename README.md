@@ -143,7 +143,7 @@ Rich message dibuat untuk chat biasa. Dukungan rendering di `status@broadcast` b
 
 ## noSelfSync
 
-`noSelfSync` hanya berlaku untuk chat pribadi. Pesan tetap dikirim ke penerima, tetapi tidak disinkronkan ke device lain milik akun pengirim.
+`noSelfSync` hanya berlaku untuk chat pribadi. Pesan tetap dikirim ke penerima, tetapi tidak disinkronkan ke device lain milik akun pengirim, dan juga tidak di-append ke store lokal pengirim.
 
 ```js
 await client.sendMessage(
