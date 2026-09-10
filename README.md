@@ -2,7 +2,7 @@
 
 <p align="center">
 
-  <img src="https://files.catbox.moe/i497x5.jpg" width="180" alt="Renn Baileys"/>
+  <img src="https://files.catbox.moe/mvxzf6.jpg" width="180" alt="Renn Baileys"/>
 
 </p>
 
