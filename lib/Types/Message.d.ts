@@ -182,10 +182,10 @@ type MinimalRelayOptions = {
     cachedGroupMetadata?: (jid: string) => Promise<GroupMetadataParticipants | undefined>;
 };
 export type MessageRelayOptions = MinimalRelayOptions & {
-    /** only send to a specific participant; used when a message decryption fails for a single user */
-    participant?: {
+    /** target one participant; accepts a JID, or a retry descriptor with its count */
+    participant?: string | {
         jid: string;
-        count: number;
+        count?: number;
     };
     /** additional attributes to add to the WA binary node */
     additionalAttributes?: {
@@ -198,6 +198,11 @@ export type MessageRelayOptions = MinimalRelayOptions & {
     statusJidList?: string[];
 };
 export type MiscMessageGenerationOptions = MinimalRelayOptions & {
+    /** target one participant when relaying a message */
+    participant?: string | {
+        jid: string;
+        count?: number;
+    };
     /** optional, if you want to manually set the timestamp of the message */
     timestamp?: Date;
     /** the message you want to quote */

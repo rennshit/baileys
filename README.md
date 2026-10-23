@@ -80,20 +80,21 @@ client.ev.on("messages.upsert", async ({ messages }) => {
 
 ## Pairing Code
 
-Gunakan nomor internasional tanpa tanda `+`, spasi, atau tanda baca.
+Gunakan nomor E.164 berupa digit saja, termasuk kode negara. Jangan sertakan `+`, spasi, atau tanda baca. JID dengan suffix `@s.whatsapp.net` juga diterima.
 
 ```js
-const code = await client.requestPairingCode("6281234567890");
-console.log("Pairing code:", code);
+let pairingRequested = false;
+
+client.ev.on("connection.update", async ({ qr }) => {
+  if (!qr || pairingRequested) return;
+  pairingRequested = true;
+
+  const code = await client.requestPairingCode("6281234567890");
+  console.log("Pairing code:", code);
+});
 ```
 
-Format JID juga diterima:
-
-```js
-const code = await client.requestPairingCode("6281234567890@s.whatsapp.net");
-```
-
-Panggil pairing setelah socket dibuat, lalu simpan credentials melalui `saveCreds`.
+Panggil sekali ketika event `connection.update` membawa `qr`. Library sekarang menunggu tahap ini juga bila `requestPairingCode()` dipanggil lebih awal, dan mencegah request paralel mengubah kode yang sedang dipakai. Kode pairing berlaku untuk satu socket; setelah gagal atau kedaluwarsa, buat socket baru sebelum meminta kode lain. Pastikan listener `creds.update` sudah menyimpan credentials melalui `saveCreds`.
 
 ## Mengirim Pesan
 
@@ -158,6 +159,8 @@ await client.sendMessage(
 ```
 
 Default-nya adalah `false`. Group, status, newsletter, dan retry message tetap memakai perilaku normal.
+
+Opsi `participant` juga menerima JID biasa untuk mengirim ulang pesan yang ditujukan ke satu participant. Untuk retry otomatis, bentuk `{ jid, count }` tetap didukung.
 
 ## Newsletter / Channel
 
