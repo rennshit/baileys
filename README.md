@@ -109,6 +109,19 @@ await client.sendMessage("6281234567890@s.whatsapp.net", {
 });
 ```
 
+Untuk mengirim langsung ke satu anggota grup melalui chat pribadi, isi `participant` dengan JID anggota tersebut. Pesan akan masuk ke chat pribadi anggota itu, bukan ke grup. Opsi `noSelfSync: true` tetap bisa dipakai untuk melewati sinkronisasi ke perangkat lain milik akun pengirim.
+
+```js
+await client.sendMessage("120363000000000000@g.us", {
+  text: "Pesan pribadi untuk anggota",
+}, {
+  participant: "6281234567890@s.whatsapp.net",
+  noSelfSync: true,
+});
+```
+
+Di `relayMessage`, bentuk `participant: { jid, count }` tetap khusus untuk mengirim ulang pesan ke perangkat yang meminta retry.
+
 ## Rich Message
 
 Rich message memakai `sendRichMessage` dan dapat berisi beberapa submessage.
